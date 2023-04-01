@@ -1,39 +1,58 @@
-document.addEventListener("DOMContentLoaded", function() {
-  var option = document.getElementById("option");
-  var submitButton = document.getElementById("submit");
+const alphabet = 'ABCDEFGHIJKLMN'.split('');
+const blockList = document.getElementById("block-list");
 
-  // Verifica se já existe uma opção salva no localStorage e define o valor do campo de formulário
-  if (localStorage.getItem("option")) {
-    option.value = localStorage.getItem("option");
-  }
+alphabet.forEach(letter => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>Quadra ${letter}</td>
+        <td>
+            <i class="fas fa-lightbulb me-2 energy-icon" id="energy${letter}"></i>
+        </td>
+        <td>
+            <i class="fas fa-wifi me-2 internet-icon" id="internet${letter}"></i>
+        </td>
+    `;
+    blockList.appendChild(tr);
+});
 
-  submitButton.addEventListener("click", function() {
-    // Salva a opção anterior em uma variável
-    var previousOption = localStorage.getItem("option");
+function updateIconColor(icon) {
+    const letter = icon.id.slice(-1);
+    const internetIcon = document.getElementById(`internet${letter}`);
+    const energyIcon = document.getElementById(`energy${letter}`);
 
-    // Salva a nova opção no localStorage
-    localStorage.setItem("option", option.value);
+    if (icon.classList.contains('danger')) {
+        icon.classList.remove('danger');
+    } else {
+        icon.classList.add('danger');
+    }
+}
 
-    // Faz a requisição POST para o arquivo save.php
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log("Dados salvos com sucesso.");
-      }
-    };
-    xhr.open("POST", "save.php", true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.send("option=" + option.value);
+$(document).ready(function() {
+    $('.internet-icon, .energy-icon').on('click', function() {
+        updateIconColor(this);
+    });
 
-    // Faz a requisição POST para o arquivo save-data.php com a opção anterior
-    var xhr2 = new XMLHttpRequest();
-    xhr2.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log("Dados anteriores salvos com sucesso.");
-      }
-    };
-    xhr2.open("POST", "save-data.php", true);
-    xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr2.send("option=" + previousOption);
-  });
+    $('#select-all-internet').on('click', function() {
+        $('.internet-icon').each(function() {
+            if (!this.classList.contains('danger')) {
+                this.classList.add('danger');
+            }
+        });
+    });
+
+    $('#select-all-energy').on('click', function() {
+        $('.energy-icon').each(function() {
+            if (!this.classList.contains('danger')) {
+                this.classList.add('danger');
+            }
+        });
+    });
+
+    $('#deselect-all').on('click', function() {
+        $('.internet-icon, .energy-icon').each(function() {
+            if (this.classList.contains('danger')) {
+                this.classList.remove('danger');
+            }
+        });
+    });
 });
